@@ -20,7 +20,7 @@ def img_to_binary(img):
   # Convert image to grayscale and binary
   img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
   th, img_gray_th_otsu = cv2.threshold(img_gray, 128, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
-  plt.imshow(img_gray_th_otsu,cmap="Greys")
+  # plt.imshow(img_gray_th_otsu,cmap="Greys")
   return img_gray, img_gray_th_otsu
 
 """## Axis Detection"""
@@ -28,8 +28,8 @@ def img_to_binary(img):
 def detect_edges(img_gray_th_otsu):
   #Edge detection
   edges = cv2.Canny(img_gray_th_otsu, 50 , 100)
-  plt.imshow(edges,cmap="Greys")
-  plt.show()
+  # plt.imshow(edges,cmap="Greys")
+  # plt.show()
   return edges
 
 def line_detection(edges):
@@ -84,8 +84,8 @@ def detect_x_axis_ticks(img_gray,xaxis):
 
   xx1,xy1,xx2,xy2 = xaxis
   x_axis_image_segment = img_gray[xy1-6:xy1+8,xx1:xx2]
-  cv2.imshow("X-axis segment",x_axis_image_segment)
-  cv2.waitKey(0)
+  # cv2.imshow("X-axis segment",x_axis_image_segment)
+  # cv2.waitKey(0)
 
   x_axis_image_segment_bin = np.where(x_axis_image_segment==0,1,0)
   x_axis_profile = np.sum(x_axis_image_segment_bin,axis=0)
@@ -103,8 +103,8 @@ def detect_y_axis_ticks(img_gray,yaxis):
   yx1,yy1,yx2,yy2 = yaxis
 
   y_axis_image_segment = img_gray[yy2:yy1,yx1-6:yx2+8]
-  cv2.imshow("Y-axis segment",y_axis_image_segment)
-  cv2.waitKey(0)
+  # cv2.imshow("Y-axis segment",y_axis_image_segment)
+  # cv2.waitKey(0)
 
   y_axis_image_segment_bin = np.where(y_axis_image_segment==0,1,0)
   y_axis_profile = np.sum(y_axis_image_segment_bin,axis=1)
@@ -136,7 +136,7 @@ def text_recognition(img_path):
   # weights for the detector and recognizer.
   pipeline = keras_ocr.pipeline.Pipeline()
 
-  images = [keras_ocr.tools.read(img_path), keras_ocr.tools.read(img_path)]
+  images = [keras_ocr.tools.read(img_path)]
 
   # Each list of predictions in prediction_groups is a list of
   # (word, box) tuples.
@@ -232,7 +232,7 @@ def x_axis_regression(x_tick_coords,x_digit_coords):
                           loss='absolute_loss', random_state=42,
                           residual_threshold=10).fit(x_tick_coords[:,0].reshape(-1,1), x_digit_coords[:,0].reshape(-1,1))
 
-  plot_ransac_regression(reg_x,x_tick_coords,x_digit_coords)
+  # plot_ransac_regression(reg_x,x_tick_coords,x_digit_coords)
   return reg_x
 
 def y_axis_regression(y_tick_coords,y_digit_coords):
@@ -240,7 +240,7 @@ def y_axis_regression(y_tick_coords,y_digit_coords):
                           loss='absolute_loss', random_state=42,
                           residual_threshold=10).fit(y_tick_coords[:,1].reshape(-1,1), y_digit_coords[:,1].reshape(-1,1))
 
-  plot_ransac_regression(reg_y,y_tick_coords,y_digit_coords)
+  # plot_ransac_regression(reg_y,y_tick_coords,y_digit_coords)
   return reg_y
 
 
@@ -267,7 +267,9 @@ def run(img_path):
 
 
 if __name__=='__main__':
-  reg_x,reg_y = run()
+  img_path = "875.png"
+  reg_x,reg_y = run(img_path)
+  print(reg_x.predict([[500]]))
 
 
 
