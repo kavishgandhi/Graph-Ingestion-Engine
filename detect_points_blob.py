@@ -6,6 +6,7 @@ from colorthief import ColorThief
 import regex
 from PIL import Image
 import easyocr
+import detect_axes_and_ticks as dt
 
 # detect and remove axes from plot
 class usingBlobs():
@@ -137,6 +138,10 @@ if __name__=='__main__':
         else:
             legend_data.append(text)
     # print(legend_data)
+
+    reg_x, reg_y = dt.run(img_name)
+
+    ## run reg_x.predict([[x]]) and reg_y.predict([[y]]) for x,y coords of blobs
     
     
     
