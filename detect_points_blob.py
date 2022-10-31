@@ -1,5 +1,4 @@
 from collections import defaultdict, Counter
-from turtle import left, width
 import cv2
 import numpy as np
 from colorthief import ColorThief
@@ -7,6 +6,7 @@ import regex
 from PIL import Image
 import easyocr
 import detect_axes_and_ticks as dt
+import matplotlib.pyplot as plt
 
 # detect and remove axes from plot
 class usingBlobs():
@@ -105,7 +105,7 @@ class usingBlobs():
 
 if __name__=='__main__':
     blobDetection = usingBlobs()
-    img_name = '900.png'
+    img_name = '875.png'
     img = cv2.imread(img_name)
     reader = easyocr.Reader(['en'])
     data = reader.readtext(img)
@@ -128,8 +128,8 @@ if __name__=='__main__':
     result = blobDetection.blob_detection(img_ra)
     for i in blobDetection.center_points:
         cv2.circle(result, (i[0],i[1]), 2, (0,0,0), -1)
-    cv2.imshow("result", result)
-    cv2.waitKey(0)
+    # cv2.imshow("result", result)
+    # cv2.waitKey(0)
     legend_data = []
     for text in detected_texts:
         text_ = text.replace(" ","")
@@ -140,7 +140,16 @@ if __name__=='__main__':
     # print(legend_data)
 
     reg_x, reg_y = dt.run(img_name)
-
+    x_coord_local, y_coord_local = map(np.array, zip(*blobDetection.center_points))
+    x_coord_local, y_coord_local = x_coord_local.reshape((-1,1)), y_coord_local.reshape((-1,1))
+    x_coord_global, y_coord_global = reg_x.predict(x_coord_local), reg_y.predict(y_coord_local)
+    x_coord_global, y_coord_global = np.round(x_coord_global,1).flatten().tolist(), np.round(y_coord_global, 1).flatten().tolist()
+    blob_coordinates = list(zip(x_coord_global, y_coord_global))
+    print(blob_coordinates)
+    print(legend_data)
+    plt.figure(figsize=(6,6))
+    plt.scatter(x_coord_global, y_coord_global)
+    plt.show()
     ## run reg_x.predict([[x]]) and reg_y.predict([[y]]) for x,y coords of blobs
     
     

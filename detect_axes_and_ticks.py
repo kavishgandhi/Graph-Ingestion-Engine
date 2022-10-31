@@ -11,8 +11,8 @@ from sklearn.linear_model import RANSACRegressor
 def read_img(img_path):
   #"/content/drive/MyDrive/Graph Ingestion Engine/Scatter_plots/875.png"
   img = cv2.imread(img_path)
-  cv2.imshow("Image",img)
-  cv2.waitKey(0)
+  # cv2.imshow("Image",img)
+  # cv2.waitKey(0)
 
   return img
 
@@ -74,8 +74,8 @@ def find_axes(img,lines):
   _ = cv2.line(line_image,(xx1,xy1),(xx2,xy2),(0,0,0),5)
   _ = cv2.line(line_image,(yx1,yy1),(yx2,yy2),(0,0,0),5)
 
-  plt.imshow(line_image, cmap="gray")
-  plt.show()
+  # plt.imshow(line_image, cmap="gray")
+  # plt.show()
   return xaxis,yaxis
 
 
@@ -125,8 +125,8 @@ def visualize_ticks(img, x_tick_coords,y_tick_coords):
   for tick in y_tick_coords:
     img2 = cv2.circle(img2, (tick[0],tick[1]), 2, [0,0,255], 2)
 
-  cv2.imshow("Image with ticks",img2)
-  cv2.waitKey(0)
+  # cv2.imshow("Image with ticks",img2)
+  # cv2.waitKey(0)
 
 
 def text_recognition(img_path):
@@ -143,9 +143,9 @@ def text_recognition(img_path):
   prediction_groups = pipeline.recognize(images)
 
   # Plot the predictions
-  fig, axs = plt.subplots(nrows=1, figsize=(20, 20))
+  # fig, axs = plt.subplots(nrows=1, figsize=(20, 20))
   # for ax, image, predictions in zip(axs, images[0], prediction_groups[0]):
-  keras_ocr.tools.drawAnnotations(image=images[0], predictions=prediction_groups[0], ax=axs)
+  # keras_ocr.tools.drawAnnotations(image=images[0], predictions=prediction_groups[0], ax=axs)
 
   predicted_text = np.array([pred[0] for pred in prediction_groups[0]])
   predicted_text_center = np.array([np.mean(pred[1],axis=0) for pred in prediction_groups[0]])
@@ -206,30 +206,30 @@ def plot_ransac_regression(reg,X,y):
   #
   # Create scatter plot for inlier datset
   #
-  plt.figure(figsize=(8, 8))
-  plt.scatter(X[inlier_mask], y[inlier_mask],
-              c='steelblue', edgecolor='white',
-              marker='o', label='Inliers')
+  # plt.figure(figsize=(8, 8))
+  # plt.scatter(X[inlier_mask], y[inlier_mask],
+  #             c='steelblue', edgecolor='white',
+  #             marker='o', label='Inliers')
   #
   # Create scatter plot for outlier datset
   #
-  plt.scatter(X[outlier_mask], y[outlier_mask],
-              c='limegreen', edgecolor='white',
-              marker='s', label='Outliers')
+  # plt.scatter(X[outlier_mask], y[outlier_mask],
+  #             c='limegreen', edgecolor='white',
+  #             marker='s', label='Outliers')
   #
   # Draw the best fit line
   #
   line_X = np.arange(3, 500, 1)
   line_y_ransac = reg.predict(line_X[:, np.newaxis])
-  plt.plot(line_X, line_y_ransac, color='black', lw=2)
-  plt.xlabel('pixel coords', fontsize=15)
-  plt.ylabel('graph coords', fontsize=15)
-  plt.legend(loc='upper left', fontsize=12)
-  plt.show()
+  # plt.plot(line_X, line_y_ransac, color='black', lw=2)
+  # plt.xlabel('pixel coords', fontsize=15)
+  # plt.ylabel('graph coords', fontsize=15)
+  # plt.legend(loc='upper left', fontsize=12)
+  # plt.show()
 
 def x_axis_regression(x_tick_coords,x_digit_coords):
   reg_x = RANSACRegressor(min_samples=2,max_trials=100,
-                          loss='absolute_loss', random_state=42,
+                          loss='absolute_error', random_state=42,
                           residual_threshold=10).fit(x_tick_coords[:,0].reshape(-1,1), x_digit_coords[:,0].reshape(-1,1))
 
   # plot_ransac_regression(reg_x,x_tick_coords,x_digit_coords)
@@ -237,7 +237,7 @@ def x_axis_regression(x_tick_coords,x_digit_coords):
 
 def y_axis_regression(y_tick_coords,y_digit_coords):
   reg_y = RANSACRegressor(min_samples=3,max_trials=100,
-                          loss='absolute_loss', random_state=42,
+                          loss='absolute_error', random_state=42,
                           residual_threshold=10).fit(y_tick_coords[:,1].reshape(-1,1), y_digit_coords[:,1].reshape(-1,1))
 
   # plot_ransac_regression(reg_y,y_tick_coords,y_digit_coords)
