@@ -7,6 +7,8 @@ from PIL import Image
 import easyocr
 import detect_axes_and_ticks as dt
 import matplotlib.pyplot as plt
+import webcolors
+import pandas as pd
 
 # detect and remove axes from plot
 class usingBlobs():
@@ -107,6 +109,8 @@ if __name__=='__main__':
     blobDetection = usingBlobs()
     img_name = '875.png'
     img = cv2.imread(img_name)
+    pil_image = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    pil_image = Image.fromarray(pil_image)
     reader = easyocr.Reader(['en'])
     data = reader.readtext(img)
     filtered_data = []
@@ -126,8 +130,8 @@ if __name__=='__main__':
         detected_texts.append(text)
     img_ra = blobDetection.remove_axes(img)
     result = blobDetection.blob_detection(img_ra)
-    for i in blobDetection.center_points:
-        cv2.circle(result, (i[0],i[1]), 2, (0,0,0), -1)
+    # for i in blobDetection.center_points:
+    #     cv2.circle(result, (i[0],i[1]), 2, (0,0,0), -1)
     # cv2.imshow("result", result)
     # cv2.waitKey(0)
     legend_data = []
@@ -139,18 +143,39 @@ if __name__=='__main__':
             legend_data.append(text)
     # print(legend_data)
 
+    # getting color values from center points
+    colors = []
+    for i in blobDetection.center_points:
+        colors.append(webcolors.rgb_to_name(pil_image.getpixel((i[0], i[1]))))
+
+    # using ransac regressor to get 
     reg_x, reg_y = dt.run(img_name)
-    x_coord_local, y_coord_local = map(np.array, zip(*blobDetection.center_points))
-    x_coord_local, y_coord_local = x_coord_local.reshape((-1,1)), y_coord_local.reshape((-1,1))
-    x_coord_global, y_coord_global = reg_x.predict(x_coord_local), reg_y.predict(y_coord_local)
-    x_coord_global, y_coord_global = np.round(x_coord_global,1).flatten().tolist(), np.round(y_coord_global, 1).flatten().tolist()
-    blob_coordinates = list(zip(x_coord_global, y_coord_global))
-    print(blob_coordinates)
-    print(legend_data)
-    plt.figure(figsize=(6,6))
-    plt.scatter(x_coord_global, y_coord_global)
+    x_coord_global_, y_coord_global_ = map(np.array, zip(*blobDetection.center_points))
+    x_coord_global_, y_coord_global_ = x_coord_global_.reshape((-1,1)), y_coord_global_.reshape((-1,1))
+    x_coord_local, y_coord_local = reg_x.predict(x_coord_global_), reg_y.predict(y_coord_global_)
+    x_coord_local, y_coord_local = np.round(x_coord_local,1).flatten().tolist(), np.round(y_coord_local, 1).flatten().tolist()
+    blob_coordinates = list(zip(x_coord_local, y_coord_local))
+    dict_for_df = {key.lower().replace(" ", ""):[] for key in legend_data}
+    for i in range(len(blob_coordinates)):
+        dict_for_df[colors[i]].append(blob_coordinates[i])
+    for k, v in dict_for_df.items():
+        dict_for_df[k] = sorted(v, key= lambda x:x[0])
+    df_output = pd.DataFrame(dict_for_df)
+    df_output.to_csv('data.csv', index=False)
+    
+    
+    # re-generating the graph
+    df_input = pd.read_csv('data.csv')
+    scatter_points_coordinates = []
+    col_list = df_input.columns
+    for col in col_list:
+        scatter_points_coordinates.append(df_input[col].values.tolist())
+    scatter_points_coordinates = [item for sublist in scatter_points_coordinates for item in sublist]
+    scatter_points_coordinates = [eval(elem) for elem in scatter_points_coordinates]
+    x_cl, y_cl = map(list, zip(*scatter_points_coordinates))
+    plt.figure(figsize=(8,5))
+    plt.scatter(x_cl, y_cl)
     plt.show()
-    ## run reg_x.predict([[x]]) and reg_y.predict([[y]]) for x,y coords of blobs
     
     
     
