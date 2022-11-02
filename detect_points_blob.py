@@ -160,12 +160,14 @@ if __name__=='__main__':
     x_coord_local, y_coord_local = np.round(x_coord_local,1).flatten().tolist(), np.round(y_coord_local, 1).flatten().tolist()
     blob_coordinates = list(zip(x_coord_local, y_coord_local))
     # dict_for_df = {key.lower().replace(" ", ""):[] for key in legend_data}
-    dict_for_df = {'red':[]}
+    dict_for_df = {'x':[], 'y':[]}
     for i in range(len(blob_coordinates)):
-        dict_for_df[colors[i]].append(blob_coordinates[i])
-    for k, v in dict_for_df.items():
-        dict_for_df[k] = sorted(v, key= lambda x:x[0])
+        dict_for_df['x'].append(blob_coordinates[i][0])
+        dict_for_df['y'].append(blob_coordinates[i][1])
+    # for k, v in dict_for_df.items():
+    #     dict_for_df[k] = sorted(v, key= lambda x:x[0])
     df_output = pd.DataFrame(dict_for_df)
+    df_output.sort_values(by='x', inplace=True)
     df_output.to_csv('data.csv', index=False)
     # fontScale = (img.shape[1] * img.shape[0]) / (500 * 500)
     for i in range(len(blobDetection.center_points)):
@@ -184,8 +186,8 @@ if __name__=='__main__':
     for col in col_list:
         scatter_points_coordinates.append(df_input[col].values.tolist())
     scatter_points_coordinates = [item for sublist in scatter_points_coordinates for item in sublist]
-    scatter_points_coordinates = [eval(elem) for elem in scatter_points_coordinates]
-    x_cl, y_cl = map(list, zip(*scatter_points_coordinates))
+    # scatter_points_coordinates = [eval(elem) for elem in scatter_points_coordinates]
+    # x_cl, y_cl = map(list, zip(*scatter_points_coordinates))
     # plt.figure(figsize=(8,5))
     # plt.scatter(x_cl, y_cl)
     # plt.show()
