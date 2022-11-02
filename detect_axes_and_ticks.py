@@ -20,7 +20,7 @@ def img_to_binary(img):
   # Convert image to grayscale and binary
   img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
   th, img_gray_th_otsu = cv2.threshold(img_gray, 128, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
-  # plt.imshow(img_gray_th_otsu,cmap="Greys")
+  # cv2.imshow("gray",img_gray_th_otsu)
   return img_gray, img_gray_th_otsu
 
 """## Axis Detection"""
@@ -79,15 +79,15 @@ def find_axes(img,lines):
   return xaxis,yaxis
 
 
-def detect_x_axis_ticks(img_gray,xaxis):
+def detect_x_axis_ticks(img_bin,xaxis):
   """x-axis tick detection"""
 
   xx1,xy1,xx2,xy2 = xaxis
-  x_axis_image_segment = img_gray[xy1-6:xy1+8,xx1:xx2]
+  x_axis_image_segment = img_bin[xy1-6:xy1+8,xx1:xx2]
   # cv2.imshow("X-axis segment",x_axis_image_segment)
   # cv2.waitKey(0)
 
-  x_axis_image_segment_bin = np.where(x_axis_image_segment==0,1,0)
+  x_axis_image_segment_bin = np.where(x_axis_image_segment==255,1,0)
   x_axis_profile = np.sum(x_axis_image_segment_bin,axis=0)
 
   x_tick_idx = np.where(x_axis_profile>4)[0]
@@ -97,16 +97,16 @@ def detect_x_axis_ticks(img_gray,xaxis):
   x_tick_coords = np.vstack((x_tick_idx,[xy1]*x_ticks_len)).T
   return x_tick_coords
 
-def detect_y_axis_ticks(img_gray,yaxis):
+def detect_y_axis_ticks(img_bin,yaxis):
   """Y-Axis tick detection"""
 
   yx1,yy1,yx2,yy2 = yaxis
 
-  y_axis_image_segment = img_gray[yy2:yy1,yx1-6:yx2+8]
+  y_axis_image_segment = img_bin[yy2:yy1,yx1-6:yx2+8]
   # cv2.imshow("Y-axis segment",y_axis_image_segment)
   # cv2.waitKey(0)
 
-  y_axis_image_segment_bin = np.where(y_axis_image_segment==0,1,0)
+  y_axis_image_segment_bin = np.where(y_axis_image_segment==255,1,0)
   y_axis_profile = np.sum(y_axis_image_segment_bin,axis=1)
 
   y_tick_idx = np.where(y_axis_profile>4)[0]
@@ -232,7 +232,7 @@ def x_axis_regression(x_tick_coords,x_digit_coords):
                           loss='absolute_error', random_state=42,
                           residual_threshold=10).fit(x_tick_coords[:,0].reshape(-1,1), x_digit_coords[:,0].reshape(-1,1))
 
-  # plot_ransac_regression(reg_x,x_tick_coords,x_digit_coords)
+  plot_ransac_regression(reg_x,x_tick_coords,x_digit_coords)
   return reg_x
 
 def y_axis_regression(y_tick_coords,y_digit_coords):
@@ -240,7 +240,7 @@ def y_axis_regression(y_tick_coords,y_digit_coords):
                           loss='absolute_error', random_state=42,
                           residual_threshold=10).fit(y_tick_coords[:,1].reshape(-1,1), y_digit_coords[:,1].reshape(-1,1))
 
-  # plot_ransac_regression(reg_y,y_tick_coords,y_digit_coords)
+  plot_ransac_regression(reg_y,y_tick_coords,y_digit_coords)
   return reg_y
 
 
@@ -251,8 +251,8 @@ def run(img_path):
   lines = line_detection(edges)
   xaxis,yaxis = find_axes(img,lines)
 
-  x_tick_coords = detect_x_axis_ticks(img_gray,xaxis)
-  y_tick_coords = detect_y_axis_ticks(img_gray,yaxis)
+  x_tick_coords = detect_x_axis_ticks(img_bin,xaxis)
+  y_tick_coords = detect_y_axis_ticks(img_bin,yaxis)
 
   visualize_ticks(img, x_tick_coords,y_tick_coords)
 

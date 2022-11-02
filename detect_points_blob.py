@@ -6,6 +6,7 @@ import regex
 from PIL import Image
 import easyocr
 import detect_axes_and_ticks as dt
+import interactive_window as iw
 import matplotlib.pyplot as plt
 import webcolors
 import pandas as pd
@@ -106,8 +107,10 @@ class usingBlobs():
         return op_img
 
 if __name__=='__main__':
+    iw.run()
+
     blobDetection = usingBlobs()
-    img_name = '875.png'
+    img_name = 'sample.png'
     img = cv2.imread(img_name)
     pil_image = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     pil_image = Image.fromarray(pil_image)
@@ -147,6 +150,7 @@ if __name__=='__main__':
     colors = []
     for i in blobDetection.center_points:
         colors.append(webcolors.rgb_to_name(pil_image.getpixel((i[0], i[1]))))
+        # colors.append("red")
 
     # using ransac regressor to get 
     reg_x, reg_y = dt.run(img_name)
@@ -155,13 +159,22 @@ if __name__=='__main__':
     x_coord_local, y_coord_local = reg_x.predict(x_coord_global_), reg_y.predict(y_coord_global_)
     x_coord_local, y_coord_local = np.round(x_coord_local,1).flatten().tolist(), np.round(y_coord_local, 1).flatten().tolist()
     blob_coordinates = list(zip(x_coord_local, y_coord_local))
-    dict_for_df = {key.lower().replace(" ", ""):[] for key in legend_data}
+    # dict_for_df = {key.lower().replace(" ", ""):[] for key in legend_data}
+    dict_for_df = {'red':[]}
     for i in range(len(blob_coordinates)):
         dict_for_df[colors[i]].append(blob_coordinates[i])
     for k, v in dict_for_df.items():
         dict_for_df[k] = sorted(v, key= lambda x:x[0])
     df_output = pd.DataFrame(dict_for_df)
     df_output.to_csv('data.csv', index=False)
+    # fontScale = (img.shape[1] * img.shape[0]) / (500 * 500)
+    for i in range(len(blobDetection.center_points)):
+        cv2.putText(img, str(blob_coordinates[i]), blobDetection.center_points[i], cv2.FONT_HERSHEY_SIMPLEX, 0.36, (0,0,0), 1)
+
+    cv2.namedWindow("Result", cv2.WINDOW_NORMAL)
+    cv2.resizeWindow("Result", 1500, 1500)   
+    cv2.imshow('Result', img)
+    cv2.waitKey(0)
     
     
     # re-generating the graph
@@ -173,9 +186,9 @@ if __name__=='__main__':
     scatter_points_coordinates = [item for sublist in scatter_points_coordinates for item in sublist]
     scatter_points_coordinates = [eval(elem) for elem in scatter_points_coordinates]
     x_cl, y_cl = map(list, zip(*scatter_points_coordinates))
-    plt.figure(figsize=(8,5))
-    plt.scatter(x_cl, y_cl)
-    plt.show()
+    # plt.figure(figsize=(8,5))
+    # plt.scatter(x_cl, y_cl)
+    # plt.show()
     
     
     
