@@ -25,7 +25,7 @@ def run():
 
 
     fig, ax = plt.subplots() #figsize=(18, 18), dpi=80
-    ax.imshow(mpimg.imread("C:\\Users\\ashly\\Documents\\Git\\SRD-GIE\\Graph-Ingestion-Engine\\blank_graph.png"))
+    ax.imshow(mpimg.imread("blank_graph.png"))
     ax.axis('off')
     # Save image on quitting, remove box around graph, add more ticks?
 

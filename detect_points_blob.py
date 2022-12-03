@@ -107,10 +107,10 @@ class usingBlobs():
         return op_img
 
 if __name__=='__main__':
-    iw.run()
+    # iw.run()
 
     blobDetection = usingBlobs()
-    img_name = 'sample.png'
+    img_name = 'sample_1_bw.png'
     img = cv2.imread(img_name)
     pil_image = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     pil_image = Image.fromarray(pil_image)
@@ -147,9 +147,9 @@ if __name__=='__main__':
     # print(legend_data)
 
     # getting color values from center points
-    colors = []
-    for i in blobDetection.center_points:
-        colors.append(webcolors.rgb_to_name(pil_image.getpixel((i[0], i[1]))))
+    # colors = []
+    # for i in blobDetection.center_points:
+    #     colors.append(webcolors.rgb_to_name(pil_image.getpixel((i[0], i[1]))))
         # colors.append("red")
 
     # using ransac regressor to get 
@@ -170,13 +170,13 @@ if __name__=='__main__':
     df_output.sort_values(by='x', inplace=True)
     df_output.to_csv('data.csv', index=False)
     # fontScale = (img.shape[1] * img.shape[0]) / (500 * 500)
-    for i in range(len(blobDetection.center_points)):
-        cv2.putText(img, str(blob_coordinates[i]), blobDetection.center_points[i], cv2.FONT_HERSHEY_SIMPLEX, 0.36, (0,0,0), 1)
+    # for i in range(len(blobDetection.center_points)):
+    #     cv2.putText(img, str(blob_coordinates[i]), blobDetection.center_points[i], cv2.FONT_HERSHEY_SIMPLEX, 0.36, (0,0,0), 1)
 
-    cv2.namedWindow("Result", cv2.WINDOW_NORMAL)
-    cv2.resizeWindow("Result", 1500, 1500)   
-    cv2.imshow('Result', img)
-    cv2.waitKey(0)
+    # cv2.namedWindow("Result", cv2.WINDOW_NORMAL)
+    # cv2.resizeWindow("Result", 1500, 1500)   
+    # cv2.imshow('Result', img)
+    # cv2.waitKey(0)
     
     
     # re-generating the graph
@@ -185,12 +185,13 @@ if __name__=='__main__':
     col_list = df_input.columns
     for col in col_list:
         scatter_points_coordinates.append(df_input[col].values.tolist())
-    scatter_points_coordinates = [item for sublist in scatter_points_coordinates for item in sublist]
+    # scatter_points_coordinates = [item for sublist in scatter_points_coordinates for item in sublist]
+    print(scatter_points_coordinates)
     # scatter_points_coordinates = [eval(elem) for elem in scatter_points_coordinates]
-    # x_cl, y_cl = map(list, zip(*scatter_points_coordinates))
-    # plt.figure(figsize=(8,5))
-    # plt.scatter(x_cl, y_cl)
-    # plt.show()
+    x_cl, y_cl = scatter_points_coordinates[0], scatter_points_coordinates[1]
+    plt.figure(figsize=(8,5))
+    plt.scatter(x_cl, y_cl)
+    plt.show()
     
     
     
