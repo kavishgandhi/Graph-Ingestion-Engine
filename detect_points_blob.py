@@ -110,7 +110,7 @@ if __name__=='__main__':
     # iw.run()
 
     blobDetection = usingBlobs()
-    img_name = 'sample_1_bw.png'
+    img_name = 'sample_1_bw_crop.png'
     img = cv2.imread(img_name)
     pil_image = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     pil_image = Image.fromarray(pil_image)
@@ -169,14 +169,14 @@ if __name__=='__main__':
     df_output = pd.DataFrame(dict_for_df)
     df_output.sort_values(by='x', inplace=True)
     df_output.to_csv('data.csv', index=False)
-    # fontScale = (img.shape[1] * img.shape[0]) / (500 * 500)
-    # for i in range(len(blobDetection.center_points)):
-    #     cv2.putText(img, str(blob_coordinates[i]), blobDetection.center_points[i], cv2.FONT_HERSHEY_SIMPLEX, 0.36, (0,0,0), 1)
+    fontScale = (img.shape[1] * img.shape[0]) / (500 * 500)
+    for i in range(len(blobDetection.center_points)):
+        cv2.putText(img, str(blob_coordinates[i]), blobDetection.center_points[i], cv2.FONT_HERSHEY_SIMPLEX, 0.36, (0,0,0), 1)
 
-    # cv2.namedWindow("Result", cv2.WINDOW_NORMAL)
-    # cv2.resizeWindow("Result", 1500, 1500)   
-    # cv2.imshow('Result', img)
-    # cv2.waitKey(0)
+    cv2.namedWindow("Result", cv2.WINDOW_NORMAL)
+    cv2.resizeWindow("Result", 1500, 1500)   
+    cv2.imshow('Result', img)
+    cv2.waitKey(0)
     
     
     # re-generating the graph
@@ -191,7 +191,7 @@ if __name__=='__main__':
     x_cl, y_cl = scatter_points_coordinates[0], scatter_points_coordinates[1]
     plt.figure(figsize=(8,5))
     plt.scatter(x_cl, y_cl)
-    plt.show()
+    plt.show(block=True)
     
     
     
